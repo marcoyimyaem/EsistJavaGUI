@@ -33,27 +33,37 @@ public class DBSample {
         }
 
     }
-    static void getVehicle(int id){
+    static Vehicle getVehicle(int id){
         Connection con = null;
+        Vehicle result = null;
         try {
 
             con = DriverManager.getConnection(url,username,password);
             String q = "SELECT * FROM `vehicle` where id = " +id;
             Statement statement = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
             ResultSet idVehicle= statement.executeQuery(q);
+
             while(idVehicle.next()){
-                System.out.println((idVehicle.getInt(1)
-                        +"\t"+idVehicle.getString(2)
-                        +"\t"+idVehicle.getString(3)
-                        +"\t"+idVehicle.getString(4)
-                        +"\t"+idVehicle.getFloat(5)));
+//                System.out.println((idVehicle.getInt(1)
+//                        +"\t"+idVehicle.getString(2)
+//                        +"\t"+idVehicle.getString(3)
+//                        +"\t"+idVehicle.getString(4)
+//                        +"\t"+idVehicle.getFloat(5)));
+                result = new Vehicle(idVehicle.getInt(1),idVehicle.getString(2),
+                        idVehicle.getString(3),
+                        idVehicle.getString(4),
+                        idVehicle.getFloat(5));
+                System.out.println(result);
             }
             con.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        catch (NullPointerException e){
+            System.out.println("user id doesn't exist");
+        }
 
-
+    return result;
 
     }
     static void setVehicle(String plateNumber,String ownerName,String type,float fee,int id){
@@ -75,16 +85,55 @@ public class DBSample {
             throw new RuntimeException(e);
         }
     }
+    static void setVehicle(Vehicle vehicle){
+//        setVehicle(vehicle.getPlateNumber());
+    }
     static void delVehicle(int id){
-//        String q = "SELECT * FROM `vehicle` where id = " +id;
+        Connection con = null;
+        try{
+            con = DriverManager.getConnection(url,username,password);
+            String q = "SELECT * FROM `vehicle` where id="+id;
+            Statement statement = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
+            ResultSet idVehicle= statement.executeQuery(q);
+            idVehicle.absolute(1);
+            idVehicle.deleteRow();
+            con.close();
+        }catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
+
+    }
+    static void insertVehicle(String plateNumber,String ownerName,String type,float fee){
+        Connection con = null;
+        try{
+            con = DriverManager.getConnection(url,username,password);
+            String q = "SELECT * FROM `vehicle`";
+            Statement statement = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
+            ResultSet idVehicle= statement.executeQuery(q);
+            idVehicle.moveToInsertRow();
+            idVehicle.updateString(2,plateNumber);
+            idVehicle.updateString(3,ownerName);
+            idVehicle.updateString(4,type);
+            idVehicle.updateFloat(5,fee);
+            idVehicle.insertRow();
+            idVehicle.moveToCurrentRow();
+//            System.out.println("added a new vehicle: "+idVehicle.getString(2));
+            con.close();
+        }catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
     public static void main(String[] args) {
 //        testCon();
         allVehicles();
-        System.out.println("getting id number 3");
+        System.out.println("getting id number 2");
 
-        setVehicle("MCK245","John Del Cross","Car",1110.5f,2);
+//        setVehicle("MCK245","John Del Cross","Car",1110.5f,2);
         getVehicle(2);
+//        delVehicle(3);
+        allVehicles();
+        insertVehicle("LFJ120","Anne Lopez","Car",845.65f);
+        allVehicles();
     }
 }
