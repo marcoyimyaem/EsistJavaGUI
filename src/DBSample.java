@@ -1,4 +1,7 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 public class DBSample {
 
     static private String url ="jdbc:mysql://localhost:3306/lto";
@@ -14,24 +17,37 @@ public class DBSample {
         }
 
     }
-    static void allVehicles(){
+    static Object[][] allVehicles(){
+        Object[][] result;
+
         try {
             Connection con =DriverManager.getConnection(url,username,password);
             String all = "SELECT * FROM vehicle";
-            Statement statement = con.createStatement();
+            Statement statement = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
             ResultSet allVehicles= statement.executeQuery(all);
+            allVehicles.last();
+            result = new Object[allVehicles.getRow()-1][5];
+            allVehicles.first();
+            int i=0;
             while(allVehicles.next()){
                 System.out.println(allVehicles.getInt(1)
                 +"\t"+allVehicles.getString(2)
                         +"\t"+allVehicles.getString(3)
                         +"\t"+allVehicles.getString(4)
                         +"\t"+allVehicles.getFloat(5));
+//
+                result[i][0] = allVehicles.getInt(1);
+                result[i][1] = allVehicles.getString(2);
+                result[i][2] = allVehicles.getString(3);
+                result[i][3] = allVehicles.getString(4);
+                result[i][4] = allVehicles.getFloat(5);
+                i++;
             }
             con.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
+    return result;
     }
     static Vehicle getVehicle(int id){
         Connection con = null;
@@ -133,7 +149,7 @@ public class DBSample {
         getVehicle(2);
 //        delVehicle(3);
         allVehicles();
-        insertVehicle("LFJ120","Anne Lopez","Car",845.65f);
+//        insertVehicle("LFJ120","Anne Lopez","Car",845.65f);
         allVehicles();
     }
 }
