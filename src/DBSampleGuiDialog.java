@@ -11,8 +11,14 @@ public class DBSampleGuiDialog extends JDialog {
     private JLabel DialogType;
     private int dialogType;
     String plateNum;
+    private int vId;
 
     public DBSampleGuiDialog(int id,int dialogType) {
+        vId = id;
+        setContentPane(contentPane);
+        setModal(true);
+        getRootPane().setDefaultButton(buttonOK);
+        setLocationRelativeTo(null);
         this.dialogType =dialogType;
         switch (dialogType){
             case 1: DialogType.setText("New Vehicle");
@@ -21,24 +27,19 @@ public class DBSampleGuiDialog extends JDialog {
                     textField1.setEnabled(false);
                     break;
             case 2: Vehicle vehicle = DBSample.getVehicle(id);
-                DialogType.setText("Update Vehicle Info");
+                    DialogType.setText("Update Vehicle Info");
                     textField1.setText(vehicle.getPlateNumber());
                     textField2.setText(vehicle.getOwnerName());
                     switch (vehicle.getType()){
-                        case "Motor": comboBox1.setSelectedIndex(0); break;
+                        case "Motor":  comboBox1.setSelectedIndex(0); break;
                         case "Car":  comboBox1.setSelectedIndex(1); break;
                         case "PUV":comboBox1.setSelectedIndex(2);  break;
                         default: comboBox1.setSelectedIndex(0); break;
                     }
-
-
                     break;
-            default: break;
+                    default: break;
         }
-        setContentPane(contentPane);
-        setModal(true);
-        getRootPane().setDefaultButton(buttonOK);
-        setLocationRelativeTo(null);
+
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -83,10 +84,12 @@ public class DBSampleGuiDialog extends JDialog {
         switch (dialogType){
             case 1: DBSample.insertVehicle(plateNum,owner,type,fee);
                 break;
-            case 2: // DBSample.setVehicle();
+            case 2: plateNum = textField1.getText();
+                DBSample.setVehicle(plateNum,owner,type,fee,vId);
             break;
             default: break;
         }
+
         dispose();
     }
 
